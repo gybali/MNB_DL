@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Xml;
 using Microsoft.Office.Tools.Ribbon;
 using Excel = Microsoft.Office.Interop.Excel;
-using Microsoft.Office.Tools.Excel;
 using Microsoft.Office.Interop.Excel;
+using System.Data;
+using Workbook = Microsoft.Office.Interop.Excel.Workbook;
+using System.Reflection;
+using System.IO;
 
 namespace MNB_DL
 {
@@ -18,12 +18,16 @@ namespace MNB_DL
 
         private void button1_Click(object sender, RibbonControlEventArgs e)
         {
-            Microsoft.Office.Tools.Excel.Worksheet worksheet = Globals.Factory.GetVstoObject(
-            Globals.ThisAddIn.Application.ActiveWorkbook.Worksheets[1]);
-            Excel.Range firstRow = worksheet.get_Range("A1");
-            firstRow.EntireRow.Insert(Excel.XlInsertShiftDirection.xlShiftDown);
-            Excel.Range newFirstRow = worksheet.get_Range("A1");
-            ThisAddIn.MNBDownload();
+            XmlDocument xd = new XmlDocument();
+            xd.LoadXml(ThisAddIn.CallWebService()); //soap message
+            XmlNode xn = xd.DocumentElement;
+            string result = xn.InnerText; //you should give exact condition
+            DataSet ds = new DataSet();
+            ds.ReadXml(new StringReader(result));
+            Range r = Globals.ThisAddIn.Application.Worksheets["Sheet1"].Range["A1", Missing.Value];
+            Workbook w = Globals.ThisAddIn.Application.ActiveWorkbook;
+            Excel.XmlMap map = w.XmlMaps.Add(ds.GetXmlSchema(), "MNBExchangeRates");
+            w.XmlImportXml(ds.GetXml(), out map, true, r);
         }
     }
 }

@@ -1,29 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using Excel = Microsoft.Office.Interop.Excel;
-using Office = Microsoft.Office.Core;
-using Microsoft.Office.Tools.Excel;
 using System.Xml;
 using System.Net;
 using System.IO;
-using MNB_DL.ServiceReference1;
 
 namespace MNB_DL
 {
     public partial class ThisAddIn
     {
+
+
         public void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            CallWebService();
         }
 
-        public static void CallWebService()
+        public static String CallWebService()
         {
             var _url = "http://www.mnb.hu/arfolyamok.asmx?Wsdl";
-            var _action = "http://www.mnb.hu/webservices/MNBArfolyamServiceSoap/GetCurrencies";
+            var _action = "http://www.mnb.hu/webservices/MNBArfolyamServiceSoap/GetExchangeRates";
 
             XmlDocument soapEnvelopeXml = CreateSoapEnvelope();
             HttpWebRequest webRequest = CreateWebRequest(_url, _action);
@@ -44,8 +37,8 @@ namespace MNB_DL
                 {
                     soapResult = rd.ReadToEnd();
                 }
-                Console.Write(soapResult);
             }
+            return soapResult;
         }
 
         private static HttpWebRequest CreateWebRequest(string url, string action)
@@ -60,8 +53,10 @@ namespace MNB_DL
 
         private static XmlDocument CreateSoapEnvelope()
         {
+            string currYear = DateTime.Now.ToString("yyyy");
+            string currDate = DateTime.Now.ToString("yyyy-MM-dd");
             XmlDocument soapEnvelopeDocument = new XmlDocument();
-            soapEnvelopeDocument.LoadXml(@"<SOAP-ENV:Envelope xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:xsi=""http://www.w3.org/1999/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/1999/XMLSchema""><SOAP-ENV:Body><HelloWorld xmlns=""http://tempuri.org/"" SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/""><int1 xsi:type=""xsd:integer"">12</int1><int2 xsi:type=""xsd:integer"">32</int2></HelloWorld></SOAP-ENV:Body></SOAP-ENV:Envelope>");
+            soapEnvelopeDocument.LoadXml(@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:web=""http://www.mnb.hu/webservices/""><soapenv:Header/><soapenv:Body><web:GetExchangeRates><web:startDate>"+currYear+"-01-01</web:startDate><web:endDate>"+currDate+ "</web:endDate><web:currencyNames>EUR,AUD,BGN,BRL,CAD,CHF,CNY,CZK,DKK,GBP,HKD,HRK,IDR,ILS,INR,ISK,JPY,KRW,MXN,MYR,NOK,NZD,PHP,PLN,RON,RSD,RUB,SEK,SGD,THB,TRY,UAH,USD,ZAR,ATS,AUP,BEF,BGL,CYN,CSD,CSK,DDM,DEM,EEK,EGP,ESP,FIM,FRF,GHP,GRD,IEP,ITL,KPW,KWD,LBP,LTL,LUF,LVL,MNT,NLG,OAL,OBL,OFR,ORB,PKR,PTE,ROL,SDP,SIT,SKK,SUR,VND,XEU,XTR,YUD</web:currencyNames></web:GetExchangeRates></soapenv:Body></soapenv:Envelope>");
             return soapEnvelopeDocument;
         }
 
@@ -72,13 +67,6 @@ namespace MNB_DL
                 soapEnvelopeXml.Save(stream);
             }
         }
-
-        public static void MNBDownload()
-        {
-            
-        }
-
-
 
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
