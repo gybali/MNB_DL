@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.OleDb;
+using System.IO;
 using System.Windows.Forms;
 
 namespace MNB_DL
@@ -14,7 +15,7 @@ namespace MNB_DL
             InitializeComponent();
 
         }
-        OleDbConnection conn = new OleDbConnection(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\Users\\balint.gyokeres\\source\\repos\\MNB_DL\\MNB_DL\\MNB_Log.accdb");
+        OleDbConnection conn = new OleDbConnection(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source =C:\\Users\\Public\\Documents\\MNB_Log.accdb");
 
 
         public void Log_Load(object sender, EventArgs e)

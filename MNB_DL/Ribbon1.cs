@@ -13,12 +13,14 @@ namespace MNB_DL
     {
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
-
         }
 
         private void Button1_Click(object sender, RibbonControlEventArgs e)
         {
-            string strDSN = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\Users\\balint.gyokeres\\source\\repos\\MNB_DL\\MNB_DL\\MNB_Log.accdb";
+            CreateDatabase newDB = new CreateDatabase("C:\\Users\\Public\\Documents\\MNB_Log.accdb");
+            newDB.Execute();
+            newDB.CreateTable();
+            string strDSN = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\Users\\Public\\Documents\\MNB_Log.accdb";
             string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
             string currDate = DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss");
             OleDbConnection myConn = new OleDbConnection(strDSN);
