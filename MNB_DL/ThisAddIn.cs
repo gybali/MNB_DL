@@ -22,14 +22,33 @@ namespace MNB_DL
             HttpWebRequest webRequest = CreateWebRequest(_url, _action);
             InsertSoapEnvelopeIntoWebRequest(soapEnvelopeXml, webRequest);
 
-            // begin async call to web request.
             IAsyncResult asyncResult = webRequest.BeginGetResponse(null, null);
 
-            // suspend this thread until call is complete. You might want to
-            // do something usefull here like update your UI.
             asyncResult.AsyncWaitHandle.WaitOne();
 
-            // get the response from the completed web request.
+            string soapResult;
+            using (WebResponse webResponse = webRequest.EndGetResponse(asyncResult))
+            {
+                using (StreamReader rd = new StreamReader(webResponse.GetResponseStream()))
+                {
+                    soapResult = rd.ReadToEnd();
+                }
+            }
+            return soapResult;
+        }
+        public static String CallUnitsWebService()
+        {
+            var _url = "http://www.mnb.hu/arfolyamok.asmx?Wsdl";
+            var _action = "http://www.mnb.hu/webservices/MNBArfolyamServiceSoap/GetCurrencyUnits";
+
+            XmlDocument soapEnvelopeXml = CreateSoapEnvelopeForUnits();
+            HttpWebRequest webRequest = CreateWebRequest(_url, _action);
+            InsertSoapEnvelopeIntoWebRequest(soapEnvelopeXml, webRequest);
+
+            IAsyncResult asyncResult = webRequest.BeginGetResponse(null, null);
+
+            asyncResult.AsyncWaitHandle.WaitOne();
+
             string soapResult;
             using (WebResponse webResponse = webRequest.EndGetResponse(asyncResult))
             {
@@ -56,7 +75,14 @@ namespace MNB_DL
             string currYear = DateTime.Now.ToString("yyyy");
             string currDate = DateTime.Now.ToString("yyyy-MM-dd");
             XmlDocument soapEnvelopeDocument = new XmlDocument();
-            soapEnvelopeDocument.LoadXml(@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:web=""http://www.mnb.hu/webservices/""><soapenv:Header/><soapenv:Body><web:GetExchangeRates><web:startDate>"+currYear+"-01-01</web:startDate><web:endDate>"+currDate+ "</web:endDate><web:currencyNames>EUR,AUD,BGN,BRL,CAD,CHF,CNY,CZK,DKK,GBP,HKD,HRK,IDR,ILS,INR,ISK,JPY,KRW,MXN,MYR,NOK,NZD,PHP,PLN,RON,RSD,RUB,SEK,SGD,THB,TRY,UAH,USD,ZAR,ATS,AUP,BEF,BGL,CYN,CSD,CSK,DDM,DEM,EEK,EGP,ESP,FIM,FRF,GHP,GRD,IEP,ITL,KPW,KWD,LBP,LTL,LUF,LVL,MNT,NLG,OAL,OBL,OFR,ORB,PKR,PTE,ROL,SDP,SIT,SKK,SUR,VND,XEU,XTR,YUD</web:currencyNames></web:GetExchangeRates></soapenv:Body></soapenv:Envelope>");
+            soapEnvelopeDocument.LoadXml(@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:web=""http://www.mnb.hu/webservices/""><soapenv:Header/><soapenv:Body><web:GetExchangeRates><web:startDate>"+currYear+"-01-01</web:startDate><web:endDate>"+currDate+ "</web:endDate><web:currencyNames>HUF,EUR,AUD,BGN,BRL,CAD,CHF,CNY,CZK,DKK,GBP,HKD,HRK,IDR,ILS,INR,ISK,JPY,KRW,MXN,MYR,NOK,NZD,PHP,PLN,RON,RSD,RUB,SEK,SGD,THB,TRY,UAH,USD,ZAR,ATS,AUP,BEF,BGL,CYN,CSD,CSK,DDM,DEM,EEK,EGP,ESP,FIM,FRF,GHP,GRD,IEP,ITL,KPW,KWD,LBP,LTL,LUF,LVL,MNT,NLG,OAL,OBL,OFR,ORB,PKR,PTE,ROL,SDP,SIT,SKK,SUR,VND,XEU,XTR,YUD</web:currencyNames></web:GetExchangeRates></soapenv:Body></soapenv:Envelope>");
+            return soapEnvelopeDocument;
+        }
+
+        private static XmlDocument CreateSoapEnvelopeForUnits()
+        {
+            XmlDocument soapEnvelopeDocument = new XmlDocument();
+            soapEnvelopeDocument.LoadXml(@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:web=""http://www.mnb.hu/webservices/""><soapenv:Header/><soapenv:Body><web:GetCurrencyUnits><web:currencyNames>HUF,EUR,AUD,BGN,BRL,CAD,CHF,CNY,CZK,DKK,GBP,HKD,HRK,IDR,ILS,INR,ISK,JPY,KRW,MXN,MYR,NOK,NZD,PHP,PLN,RON,RSD,RUB,SEK,SGD,THB,TRY,UAH,USD,ZAR,ATS,AUP,BEF,BGL,CYN,CSD,CSK,DDM,DEM,EEK,EGP,ESP,FIM,FRF,GHP,GRD,IEP,ITL,KPW,KWD,LBP,LTL,LUF,LVL,MNT,NLG,OAL,OBL,OFR,ORB,PKR,PTE,ROL,SDP,SIT,SKK,SUR,VND,XEU,XTR,YUD</web:currencyNames></web:GetCurrencyUnits></soapenv:Body></soapenv:Envelope>");
             return soapEnvelopeDocument;
         }
 
